@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="ASCII"?>
+<forms:EntityModel
+    xmi:version="2.0"
+    xmlns:xmi="http://www.omg.org/XMI"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:forms="http://big.tuwien.ac.at/me" 
+	xsi:schemaLocation="http://big.tuwien.ac.at/me ../model/forms.ecore">
+  <entities name="Test" id="//@entities.0/@attributes.0">
+    <attributes name="id" mandatory="true" type="Integer"/>
+  </entities>
+  <entities name="TestSub" id="//@entities.0/@attributes.0"/>
+</forms:EntityModel>

@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="ASCII"?>
+<forms:FormModel
+    xmi:version="2.0"
+    xmlns:xmi="http://www.omg.org/XMI"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:forms="http://big.tuwien.ac.at/me" 
+	xsi:schemaLocation="http://big.tuwien.ac.at/me ../model/forms.ecore"
+    welcomeForm="//@forms.0">
+  <entityModel>
+    <entities name="Person" id="//@entityModel/@entities.0/@attributes.0">
+      <attributes name="id" mandatory="true" type="Integer"/>
+      <attributes name="name" mandatory="true" type="String"/>
+    </entities>
+    <entities name="Address" id="//@entityModel/@entities.1/@attributes.0">
+      <attributes name="email" mandatory="true" type="Email"/>
+      <attributes name="confirmed" mandatory="true" type="Boolean"/>
+    </entities>
+  </entityModel>
+  <forms name="PersonForm" title="Persons" entity="//@entityModel/@entities.0">
+    <pages title="PersonPage">
+      <pageElements xsi:type="forms:TextFieldAttributePageElement" label="Id" elementID="personId" attribute="//@entityModel/@entities.1/@attributes.0" format="[0-9]+"/>
+    </pages>
+  </forms>
+</forms:FormModel>

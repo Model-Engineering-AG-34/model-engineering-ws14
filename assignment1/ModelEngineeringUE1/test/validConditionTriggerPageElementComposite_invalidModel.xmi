@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="ASCII"?>
+<forms:FormModel
+    xmi:version="2.0"
+    xmlns:xmi="http://www.omg.org/XMI"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:forms="http://big.tuwien.ac.at/me" 
+	xsi:schemaLocation="http://big.tuwien.ac.at/me ../model/forms.ecore"
+    welcomeForm="//@forms.0">
+  <entityModel>
+    <entities name="Person" id="//@entityModel/@entities.1/@attributes.0" superType="//@entityModel/@entities.1">
+      <attributes name="relationshipStatus" enumerationType="//@entityModel/@enumerations.0"/>
+      <attributes name="adult" type="Boolean"/>
+      <relationships name="loves" lowerBound="0" upperBound="-1" target="//@entityModel/@entities.0" opposite="//@entityModel/@entities.0/@relationships.0"/>
+    </entities>
+    <entities name="NamedEntity" id="//@entityModel/@entities.1/@attributes.0">
+      <attributes name="id" mandatory="true" type="Integer"/>
+      <attributes name="name" type="String"/>
+    </entities>
+    <enumerations name="RelationshipStatus">
+      <literals name="MARRIED" value="Married"/>
+      <literals name="SINGLE" value="Single"/>
+    </enumerations>
+  </entityModel>
+  <forms name="PersonForm" title="Person loves..." entity="//@entityModel/@entities.0">
+    <pages title="PersonPage">
+      <pageElements xsi:type="forms:TableRelationshipPageElement" label="Loves" elementID="personLoves" relationship="//@entityModel/@entities.0/@relationships.0" editingForm="//@forms.0">
+        <conditions xsi:type="forms:CompositeCondition" conditionID="personPageCompositeCondition" type="Hide">
+          <conditions xsi:type="forms:AttributeValueCondition" conditionID="lovesTableCondition" type="Hide" trigger="//@forms.1/@pages.0/@pageElements.0" value="MARRIED"/>
+          <conditions xsi:type="forms:AttributeValueCondition" conditionID="adultTableCondition" type="Hide" trigger="//@forms.1/@pages.0/@pageElements.1" value="MARRIED"/>
+        </conditions>
+        <columns attribute="//@entityModel/@entities.1/@attributes.1"/>
+        <columns attribute="//@entityModel/@entities.0/@attributes.0"/>
+      </pageElements>
+    </pages>
+  </forms>
+  <forms name="TestForm" title="Test" entity="//@entityModel/@entities.0">
+    <pages title="TestPage">
+      <pageElements xsi:type="forms:SelectionAttributePageElement" label="Relationship status" elementID="personRelationshipStatus" attribute="//@entityModel/@entities.0/@attributes.0"/>
+      <pageElements xsi:type="forms:SelectionAttributePageElement" label="Adult" elementID="personAdult" attribute="//@entityModel/@entities.0/@attributes.1"/>
+    </pages>
+  </forms>
+</forms:FormModel>
