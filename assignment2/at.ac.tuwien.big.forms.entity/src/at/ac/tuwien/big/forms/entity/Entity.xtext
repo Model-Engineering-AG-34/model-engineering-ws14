@@ -16,9 +16,9 @@ Entity :
 	'entity' name=ID ('extends' superType=[Entity])?
 	'{'
 	
-		'id' id=[Attribute|QualifiedName]','
+		'id' id=[Attribute|QualifiedName]
 		
-		(features+=Feature)*	
+		(','features+=Feature)*	
 		
 	'}'
 ;
@@ -26,20 +26,21 @@ Feature:
 	Attribute|Relationship
 ;
 Attribute :
-	'attribute' name=ID(mandatory?='*')? ':' type=AttributeType (':' enumeration=[Enumeration])?(',')? 
+	'attribute' name=ID(mandatory?='*')? ':' type=AttributeType (':' enumeration=[Enumeration])? 
 ;
 Relationship :
-	'reference' name=ID ':' target=[Entity]'['lowerBound=EInt'..'upperBound=EInt']' ('opposite-of' opposite=[Relationship|QualifiedName])?(',')?
+	'reference' name=ID ':' target=[Entity]'['lowerBound=EInt'..'upperBound=EInt']' ('opposite-of' opposite=[Relationship|QualifiedName])?
 ;
 Enumeration :
 	'enum' name=ID 
 	'{'
-		(literals+=Literal)+ 		
+		literals+=Literal 		
+		(',' literals+=Literal)*
 	'}'
 ;
 
 Literal :
-	name=ID '=' value=EString(',')?
+	name=ID '=' value=EString
 ;
 
 enum AttributeType :

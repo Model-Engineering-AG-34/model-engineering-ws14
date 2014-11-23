@@ -20,7 +20,8 @@ Form:
 Page:
 	'page' title=EString 
 	'{'
-		(pageElements+=PageElement)* 
+		(pageElements+=PageElement)?
+		(','pageElements+=PageElement)* 
 	'}' ('with' condition=Condition)?
 		
 ;
@@ -52,36 +53,37 @@ enum ConditionType :
 	Hide='Hide'|Show='Show'|Enable='Enable'|Disable='Disable'|None='None'
 ;
 TextField:
-	'text-field' elementID=ID label=EString ('format' format=EString)? 'handles' attribute=[Attribute|QualifiedName](',')? 
+	'text-field' elementID=ID label=EString ('format' format=EString)? 'handles' attribute=[Attribute|QualifiedName]
 ;
 
 TextArea:
-	'text-area' elementID=ID label=EString 'handles' attribute=[Attribute|QualifiedName](',')? 
+	'text-area' elementID=ID label=EString 'handles' attribute=[Attribute|QualifiedName]
 ;
 
 SelectionField:
-	'selection-field' elementID=ID label=EString 'handles' attribute=[Attribute|QualifiedName](',')? 
+	'selection-field' elementID=ID label=EString 'handles' attribute=[Attribute|QualifiedName]
 ;
 
 DateSelectionField:
-	'date-selection-field' elementID=ID label=EString 'handles' attribute=[Attribute|QualifiedName](',')? 
+	'date-selection-field' elementID=ID label=EString 'handles' attribute=[Attribute|QualifiedName]
 ;
 TimeSelectionField:
-	'time-selection-field' elementID=ID label=EString 'handles' attribute=[Attribute|QualifiedName](',')?
+	'time-selection-field' elementID=ID label=EString 'handles' attribute=[Attribute|QualifiedName]
 ;
 Table:
 	'table' elementID=ID label=EString 'handles' relationship=[Relationship|QualifiedName]
 	'{'
-		(columns+=Column)*
-	'}' 'edits' editingForm=[Form] (',')?
+		(columns+=Column)?
+		(','columns+=Column)*
+	'}' 'edits' editingForm=[Form] 
 ;
 
 Column:
-	'column' elementID=ID label=EString 'handles' attribute=[Attribute|QualifiedName](',')?
+	'column' elementID=ID label=EString 'handles' attribute=[Attribute|QualifiedName]
 ;
 
 List:
-	'list' elementID=ID label=EString 'handles' relationship=[Relationship|QualifiedName] 'edits' editingForm=[Form](',')?
+	'list' elementID=ID label=EString 'handles' relationship=[Relationship|QualifiedName] 'edits' editingForm=[Form]
 ;
 EInt returns ecore::EInt:
 	'-'? INT;

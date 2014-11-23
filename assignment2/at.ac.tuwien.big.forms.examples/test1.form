@@ -7,85 +7,85 @@
  */
  welcome form PublicationForm "Publication" handles Publication {
 	page "PublicationPage" {
-		text-field PublicationTitleField "Title" handles Publication.title,
-		text-field PublicationKeywordField "Keywords" format "^([a-zA-Z]+,)+[a-zA-Z]+$" handles Publication.keywords,
-		text-area PublicationAbstractArea "Abstract" handles Publication.abstract,
-		text-field PublicationYearField "Year" handles Publication.year,
-		text-field PublicationFromPageField "From page" handles Publication.fromPage,
-		text-field PublicationUntilPageField "Until page" handles Publication.untilPage,
-		selection-field PublicationTypeSelection "Type" handles Publication.publicationType,
-		selection-field PublicationFacultySelection "Assigned faculty" handles Publication.assignedFaculty,
-		selection-field PublicationResearchSelection "Research field" handles Publication.field
+		text-field PublicationTitleField "Title" handles title,
+		text-field PublicationKeywordField "Keywords" format "^([a-zA-Z]+,)+[a-zA-Z]+$" handles keywords,
+		text-area PublicationAbstractArea "Abstract" handles abstract,
+		text-field PublicationYearField "Year" handles year,
+		text-field PublicationFromPageField "From page" handles fromPage,
+		text-field PublicationUntilPageField "Until page" handles untilPage,
+		selection-field PublicationTypeSelection "Type" handles publicationType,
+		selection-field PublicationFacultySelection "Assigned faculty" handles assignedFaculty,
+		selection-field PublicationResearchSelection "Research field" handles field
 	}
 	
 	page "Authors" {
-		table AuthorTable "Authors" handles Publication.authors {
-			column AuthorFirstNameColumn "First name" handles Person.firstname,
-			column AuthorLastNameColumn "Last name" handles Person.lastname,
-			column AuthorEMailNameColumn "E-Mail" handles Person.email 
+		table AuthorTable "Authors" handles authors {
+			column AuthorFirstNameColumn "First name" handles firstname,
+			column AuthorLastNameColumn "Last name" handles lastname,
+			column AuthorEMailNameColumn "E-Mail" handles email 
 		} edits PersonForm
 	}
 	
 	page "Proceedings" {
-		list ProceedingsList "Proceedings" handles Publication.proceedings edits ProceedingsForm 
+		list ProceedingsList "Proceedings" handles proceedings edits ProceedingsForm 
 	} with composite-condition ProceedingsCondition: 
-			(attribute-condition ShowIfCP: Publication.publicationType == "Conference Paper" ? Show or
-			 attribute-condition ShowIfWP: Publication.publicationType == "Workshop Paper" ? Show) ? Show
+			(attribute-condition ShowIfCP: publicationType == "Conference Paper" ? Show or
+			 attribute-condition ShowIfWP: publicationType == "Workshop Paper" ? Show) ? Show
 	
 	page "Journal" { 
-		list JournalList "Journal" handles Publication.journal edits JournalForm 
-	} with attribute-condition ShowIfJA: Publication.publicationType == "Journal Article" ? Show 
+		list JournalList "Journal" handles journal edits JournalForm 
+	} with attribute-condition ShowIfJA: publicationType == "Journal Article" ? Show 
 	
 	page "Book" { 
-		list BookList "Book" handles Publication.book edits BookForm		
-	} with attribute-condition ShowIfBC: Publication.publicationType == "Book Chapter" ? Show
+		list BookList "Book" handles book edits BookForm		
+	} with attribute-condition ShowIfBC: publicationType == "Book Chapter" ? Show
 }
 
 form PersonForm "Person" handles Person {
 	page "Person Details" { 
-		text-field FirstNameField "First name" handles Person.firstname,
-		text-field LastNameField "Last name" handles Person.lastname,
-		text-field EMailField "E-Mail" handles Person.email,
-		selection-field ExternalPersonSelection "Faculty-external person" handles Person.external,
-		selection-field EmployedFacultySelection "Employed faculty" handles Person.faculty 
-			with attribute-condition HideIfExternal: Person.external == "true" ? Hide
+		text-field FirstNameField "First name" handles firstname,
+		text-field LastNameField "Last name" handles lastname,
+		text-field EMailField "E-Mail" handles email,
+		selection-field ExternalPersonSelection "Faculty-external person" handles external,
+		selection-field EmployedFacultySelection "Employed faculty" handles faculty 
+			with attribute-condition HideIfExternal: external == "true" ? Hide
 	}
 }
 
 form ProceedingsForm "Proceedings" handles Proceedings {
 	page "Proceedings Details" { 
-		text-field ProceedingsTitleField "Title" handles PublicationVenue.title,
-		text-field ProceedingsPublisherField "Publisher" handles Proceedings.publisher,
-		text-field ProceedingsVolumeField "Volume" handles Proceedings.volume,
-		text-field ProceedingsISBNField "ISBN" handles Proceedings.isbn,
-		list ProceedingsEditorsList "Editors" handles Proceedings.editors edits PersonForm,
-		list ProceedingsEventList "Event" handles Proceedings.event edits EventForm
+		text-field ProceedingsTitleField "Title" handles title,
+		text-field ProceedingsPublisherField "Publisher" handles publisher,
+		text-field ProceedingsVolumeField "Volume" handles volume,
+		text-field ProceedingsISBNField "ISBN" handles isbn,
+		list ProceedingsEditorsList "Editors" handles editors edits PersonForm,
+		list ProceedingsEventList "Event" handles event edits EventForm
 	}
 }
 
 form JournalForm "Journal" handles Journal {
 	page "Journal Details" { 
-		text-field JournalTitleField "Title" handles PublicationVenue.title,
-		text-field JournalVolumeField "Volume" handles Journal.volume,
-		text-field JournalNumberField "Number" handles Journal.number
+		text-field JournalTitleField "Title" handles title,
+		text-field JournalVolumeField "Volume" handles volume,
+		text-field JournalNumberField "Number" handles number
 	}
 }
 
 form BookForm "Book" handles Book {
 	page "Book Details" { 
-		text-field BookTitleField "Title" handles PublicationVenue.title,
-		text-field BookPublisherField "Publisher" handles Book.publisher,
-		text-field BookISBNField "ISBN" handles Book.isbn
+		text-field BookTitleField "Title" handles title,
+		text-field BookPublisherField "Publisher" handles publisher,
+		text-field BookISBNField "ISBN" handles isbn
 	}
 }
 
 form EventForm "Event" handles Event {
 	page "Event Details" { 
-		text-field EventTitleField "Title" handles Event.title,
-		text-field EventCityField "City" handles Event.city,
-		text-field EventCountryField "Country" handles Event.country,
-		date-selection-field EventFromSelection "From date" handles Event.fromDate,
-		date-selection-field EventUntilSelection "Until date" handles Event.untilDate,
-		time-selection-field EventAdmissionSelection "Admission from" handles Event.admissionFrom
+		text-field EventTitleField "Title" handles title,
+		text-field EventCityField "City" handles city,
+		text-field EventCountryField "Country" handles country,
+		date-selection-field EventFromSelection "From date" handles fromDate,
+		date-selection-field EventUntilSelection "Until date" handles untilDate,
+		time-selection-field EventAdmissionSelection "Admission from" handles admissionFrom
 	}
 }

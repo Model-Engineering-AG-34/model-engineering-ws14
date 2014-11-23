@@ -38,7 +38,7 @@ entity PublicationVenue {
 }
 
 entity Proceedings extends PublicationVenue {
-	id PublicationVenue.title, // title of super-entity: PublicationVenue.title
+	id title, // title of super-entity: PublicationVenue.title
 	attribute publisher* : String,
 	attribute volume : Integer,
 	attribute isbn : String,
@@ -47,13 +47,13 @@ entity Proceedings extends PublicationVenue {
 }
 
 entity Journal extends PublicationVenue {
-	id PublicationVenue.title, // title of super-entity: PublicationVenue.title
+	id title, // title of super-entity: PublicationVenue.title
 	attribute volume : Integer,
 	attribute number : Integer
 }
 
 entity Book extends PublicationVenue {
-	id PublicationVenue.title, // title of super-entity: PublicationVenue.title
+	id title, // title of super-entity: PublicationVenue.title
 	attribute publisher* : String,
 	attribute isbn : String 
 }

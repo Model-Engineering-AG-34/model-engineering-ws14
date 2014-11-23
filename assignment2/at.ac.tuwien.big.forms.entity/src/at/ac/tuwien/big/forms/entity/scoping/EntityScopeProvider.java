@@ -3,6 +3,17 @@
  */
 package at.ac.tuwien.big.forms.entity.scoping;
 
+import java.util.Collection;
+import java.util.HashSet;
+
+import org.eclipse.emf.ecore.EReference;
+import org.eclipse.xtext.scoping.IScope;
+import org.eclipse.xtext.scoping.Scopes;
+
+import at.ac.tuwien.big.forms.Attribute;
+import at.ac.tuwien.big.forms.Entity;
+import at.ac.tuwien.big.forms.Feature;
+
 /**
  * This class contains custom scoping description.
  * 
@@ -11,5 +22,26 @@ package at.ac.tuwien.big.forms.entity.scoping;
  *
  */
 public class EntityScopeProvider extends org.eclipse.xtext.scoping.impl.AbstractDeclarativeScopeProvider {
+
+	public IScope scope_Entity_id(Entity entity, EReference reference) {
+		return Scopes.scopeFor(getAttributes(entity));
+	}
+	
+	private Collection<Attribute> getAttributes(Entity entity) {
+		Entity currentEntity = entity;
+		Collection<Attribute> attributes = new HashSet<Attribute>();
+
+		while(currentEntity != null){
+			for (Feature feature : currentEntity.getFeatures()) {
+				if(feature instanceof Attribute){
+					attributes.add((Attribute) feature);
+				}
+			}
+			
+			currentEntity = currentEntity.getSuperType();
+		}
+		
+		return attributes;
+	}
 
 }
