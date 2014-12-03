@@ -1,0 +1,88 @@
+-- @path Forms=/at.ac.tuwien.big.forms.transformations/metamodel/forms.ecore
+
+module Entities2Forms;
+create OUT : Forms from IN : Forms;
+helper def: welcomeFormisSet : Boolean =false;
+helper def: id : Integer =0;
+helper context Integer def: inc() : Integer=self+1;
+
+rule EntityModel2FormModel {
+	from
+		em : Forms!EntityModel
+	to 
+		fm : Forms!FormModel (
+			forms <- em.entityModelElements
+		)
+}
+
+rule Entity2Form {
+	from
+		en : Forms!Entity
+	to 
+		fm : Forms!Form (
+			name <- en.name,
+			title <- en.name,
+			pages <- pg,
+			pages <- en.features ->select(p|p.oclIsTypeOf(Forms!Relationship))
+
+			
+		),
+		pg:Forms!Page(
+			title <- en.name + ' Details'	
+		)
+	do{
+		fm.entity <- en;
+		
+		if (thisModule.welcomeFormisSet=false) {
+			fm.welcomeForm <- Forms!Entity.allInstances()->collect(f|f.features).flatten()->select(t|t.oclIsTypeOf(Forms!Relationship))->collect(r|r.target)->excludes(en);
+			
+			if(fm.welcomeForm){
+				thisModule.welcomeFormisSet <- true;
+			}
+		} else {
+			fm.welcomeForm <-false;
+		}
+
+		
+	}
+		
+}
+abstract rule Feature2PageElement{
+	from
+		fe: Forms!Feature
+	to
+		pe: Forms!PageElement(
+			label <- Forms!Form.allInstances()->select(fo|fo.entity=fe.target).first().name)
+	
+}
+rule Relationship2PageList extends Feature2PageElement{  
+	from
+		fe : Forms!Relationship
+	to 
+		pg:Forms!Page(
+			title <- fe.name.substring(1, 1).toUpper()+fe.name.substring(2, fe.name.size()) ,
+			pageElements <- pe
+			
+		),
+		pe : Forms!List(
+			editingForm<-Forms!Form.allInstances()->select(fo|fo.entity=fe.target))
+		
+	do{
+		
+		pe.relationship<-fe;
+		thisModule.id<-thisModule.id.inc();
+		pe.elementID<-thisModule.id.toString();
+	}
+}
+
+rule Attribute2AttributePageElement extends Feature2PageElement{
+	from
+		fe: Forms!Attribute
+	to
+		pe: Forms!AttributePageElement(
+			
+		)
+}
+
+
+
