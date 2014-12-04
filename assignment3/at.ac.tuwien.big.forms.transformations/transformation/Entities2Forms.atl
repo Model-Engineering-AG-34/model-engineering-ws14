@@ -23,7 +23,7 @@ rule EntityModel2FormModel {
 			forms <- em.entityModelElements
 		)
 }
-
+ 
 rule Entity2Form {
 	from
 		en : Forms!Entity
