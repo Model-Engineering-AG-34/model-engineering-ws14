@@ -2,17 +2,26 @@
 
 module Entities2Forms;
 create OUT : Forms from IN : Forms;
-helper def: welcomeFormisSet : Boolean =false;
-helper def: id : Integer =0;
-helper context Integer def: inc() : Integer=self+1;
-helper context Forms!Entity
-def : allAttributesRec() :Sequence(Forms!Attribute) =
-self.features->select(p|p.oclIsTypeOf(Forms!Attribute))
-->union(
-	if not self.superType.oclIsUndefined()
-	then self.superType.allAttributesRec()
-	else Sequence{}
-	endif
+
+helper def: welcomeFormIsSet : Boolean = false;
+helper def: id : Integer = 0;
+
+helper context Integer def: inc() : Integer = self + 1;
+helper context Forms!Entity def : allAttributesRec() : Sequence(Forms!Attribute) =
+	self.features -> select( p | p.oclIsTypeOf(Forms!Attribute))
+	-> union(
+		if not self.superType.oclIsUndefined()
+			then self.superType.allAttributesRec()
+			else Sequence{}
+		endif
+	); 
+helper context Forms!Entity def : allRelationshipsRec() : Sequence(Forms!Relationship) =
+	self.features -> select( p | p.oclIsTypeOf(Forms!Relationship))
+	-> union(
+		if not self.superType.oclIsUndefined()
+			then self.superType.allRelationshipsRec()
+			else Sequence{}
+		endif
 	); 
 
 rule EntityModel2FormModel {
@@ -26,161 +35,175 @@ rule EntityModel2FormModel {
  
 rule Entity2Form {
 	from
-		en : Forms!Entity
+		e : Forms!Entity
 	to 
-		fm : Forms!Form (
-			name <- en.name,
-			title <- en.name,
-			pages <- pg,
-			pages <- en.features ->select(p|p.oclIsTypeOf(Forms!Relationship))
-
-			
+		f : Forms!Form (
+			name <- e.name,
+			title <- e.name,
+			pages <- page,
+			pages <- e.allRelationshipsRec()
 		),
-		pg:Forms!Page(
-			title <- en.name + ' Details'
-			
-			
-			
+		page : Forms!Page(
+			title <- e.name + ' Details',
+			pageElements <- e.allAttributesRec() -> collect(attr | thisModule.Attribute2AttributePageElement(attr))
 		)
-	do{
-		fm.entity <- en;
 		
+	do {
+		f.entity <- e;
 		
-		for(a in en.allAttributesRec())
-		{
-			pg.pageElements <-thisModule.Attribute2AttributePageElement(a);
-		}
-		
-		if (thisModule.welcomeFormisSet=false) {
-			fm.welcomeForm <- Forms!Entity.allInstances()->collect(f|f.features).flatten()->select(t|t.oclIsTypeOf(Forms!Relationship))->collect(r|r.target)->excludes(en);
+		if (thisModule.welcomeFormIsSet = false) {
+			f.welcomeForm <- Forms!Entity.allInstances() 
+				-> collect(f | f.features).flatten()
+				-> select(t | t.oclIsTypeOf(Forms!Relationship))
+				-> collect(r | r.target)
+				-> excludes(e);
 			
-			if(fm.welcomeForm){
-				thisModule.welcomeFormisSet <- true;
+			if (f.welcomeForm){
+				thisModule.welcomeFormIsSet <- true;
 			}
 		} else {
-			fm.welcomeForm <-false;
+			f.welcomeForm <- false;
 		}
-		
-		
-
-		
 	}
 		
 }
-lazy abstract rule Attribute2AttributePageElement{
+lazy abstract rule Attribute2AttributePageElement {
 	from
-		at: Forms!Attribute
+		attr : Forms!Attribute
 	to
-		ape: Forms!AttributePageElement(
-			label<-at.name.substring(1, 1).toUpper()+at.name.substring(2, at.name.size()))
-	
+		ape : Forms!AttributePageElement(
+			label <- attr.name.substring(1, 1).toUpper() + 
+				if attr.name.size() > 1
+				then attr.name.substring(2, attr.name.size())
+				else ''
+				endif
+		)
 }
 rule Relationship2PageList {  
 	from
-		fe : Forms!Relationship
+		r : Forms!Relationship
 	to 
-		pg:Forms!Page(
-			title <- fe.name.substring(1, 1).toUpper()+fe.name.substring(2, fe.name.size()) ,
-			pageElements <- pe
-			
-			
+		p : Forms!Page(
+			pageElements <- pe,
+			title <- 
+				r.name.substring(1, 1).toUpper() +
+				if r.name.size() > 1
+				then r.name.substring(2, r.name.size())
+				else ''
+				endif
 		),
 		pe : Forms!List(
-			editingForm<-Forms!Form.allInstances()->select(fo|fo.entity=fe.target),
-			label <- Forms!Form.allInstances()->select(fo|fo.entity=fe.target).first().name)
+			editingForm <- Forms!Form.allInstances() -> select(f | f.entity = r.target),
+			label <- Forms!Form.allInstances() -> select(f | f.entity = r.target).first().name
+		)
 		
-	do{
-		
-		pe.relationship<-fe;
-		thisModule.id<-thisModule.id.inc();
-		pe.elementID<-thisModule.id.toString();
+	do {
+		pe.relationship <- r;
+		thisModule.id <- thisModule.id.inc();
+		pe.elementID <- thisModule.id.toString();
 	}
 }
 
-lazy rule AttributePageElement2TimeSelectionField extends Attribute2AttributePageElement{
+lazy rule AttributePageElement2TimeSelectionField extends Attribute2AttributePageElement {
 	from
-		at: Forms!Attribute (at.type=#Time)
+		attr : Forms!Attribute (
+			attr.type = #Time
+		)
 	to
-		ape: Forms!TimeSelectionField()
+		ape : Forms!TimeSelectionField()
 		
-	do{
-		ape.attribute<-at;
-		thisModule.id<-thisModule.id.inc();
-		ape.elementID<-thisModule.id.toString();
+	do {
+		ape.attribute <- attr;
+		thisModule.id <- thisModule.id.inc();
+		ape.elementID <- thisModule.id.toString();
 	}
 }
-lazy rule AttributePageElement2DateSelectionField extends Attribute2AttributePageElement{
+lazy rule AttributePageElement2DateSelectionField extends Attribute2AttributePageElement {
 	from
-		at: Forms!Attribute (at.type=#Date)
+		attr : Forms!Attribute (
+			attr.type = #Date
+		)
 	to
-		ape: Forms!DateSelectionField()
+		ape : Forms!DateSelectionField()
 		
-	do{
-		ape.attribute<-at;
-		thisModule.id<-thisModule.id.inc();
-		ape.elementID<-thisModule.id.toString();
+	do {
+		ape.attribute <- attr;
+		thisModule.id <- thisModule.id.inc();
+		ape.elementID <- thisModule.id.toString();
 	}
 }
-lazy rule AttributePageElement2TextArea extends Attribute2AttributePageElement{
+lazy rule AttributePageElement2TextArea extends Attribute2AttributePageElement {
 	from
-		at: Forms!Attribute (at.type=#Text)
+		attr : Forms!Attribute (
+			attr.type = #Text
+		)
 	to
-		ape: Forms!TextArea()
+		ape : Forms!TextArea()
 		
-	do{
-		ape.attribute<-at;
-		thisModule.id<-thisModule.id.inc();
-		ape.elementID<-thisModule.id.toString();
+	do {
+		ape.attribute <- attr;
+		thisModule.id <- thisModule.id.inc();
+		ape.elementID <- thisModule.id.toString();
 	}
 }
-lazy rule AttributePageElement2SelectionField extends Attribute2AttributePageElement{
+lazy rule AttributePageElement2SelectionField extends Attribute2AttributePageElement {
 	from
-		at: Forms!Attribute (at.type=#"Boolean" or at.type=#None)
+		attr : Forms!Attribute (
+			attr.type = #"Boolean" or attr.type = #None
+		)
 	to
-		ape: Forms!SelectionField()
+		ape : Forms!SelectionField()
 		
-	do{
-		ape.attribute<-at;
-		thisModule.id<-thisModule.id.inc();
-		ape.elementID<-thisModule.id.toString();
+	do {
+		ape.attribute <- attr;
+		thisModule.id <- thisModule.id.inc();
+		ape.elementID <- thisModule.id.toString();
 	}
 }
-lazy rule AttributePageElement2TextFieldString extends Attribute2AttributePageElement{
+lazy rule AttributePageElement2TextFieldString extends Attribute2AttributePageElement {
 	from
-		at: Forms!Attribute (at.type=#"String")
+		attr : Forms!Attribute (
+			attr.type = #"String"
+		)
 	to
-		ape: Forms!TextField()
+		ape : Forms!TextField()
 		
-	do{
-		ape.attribute<-at;
-		thisModule.id<-thisModule.id.inc();
-		ape.elementID<-thisModule.id.toString();
+	do {
+		ape.attribute <- attr;
+		thisModule.id <- thisModule.id.inc();
+		ape.elementID <- thisModule.id.toString();
 	}
 }
-lazy rule AttributePageElement2TextFieldNumeric extends Attribute2AttributePageElement{
+lazy rule AttributePageElement2TextFieldNumeric extends Attribute2AttributePageElement {
 	from
-		at: Forms!Attribute (at.type=#Year or at.type=#"Integer")
+		attr : Forms!Attribute (
+			attr.type = #Year or attr.type = #"Integer"
+		)
 	to
-		ape: Forms!TextField(
-			format<-'^[0-9]+$')
+		ape : Forms!TextField(
+			format <- '^[0-9]+$'
+		)
 		
-	do{
-		ape.attribute<-at;
-		thisModule.id<-thisModule.id.inc();
-		ape.elementID<-thisModule.id.toString();
+	do {
+		ape.attribute <- attr;
+		thisModule.id <- thisModule.id.inc();
+		ape.elementID <- thisModule.id.toString();
 	}
 }
-lazy rule AttributePageElement2TextFieldEmail extends Attribute2AttributePageElement{
+lazy rule AttributePageElement2TextFieldEmail extends Attribute2AttributePageElement {
 	from
-		at: Forms!Attribute (at.type=#Email)
+		attr : Forms!Attribute (
+			attr.type = #Email
+		)
 	to
-		ape: Forms!TextField(
-			format<-'^\\w+@[a-zA-Z_]+\\.[a-zA-Z]{2,3}$')  
+		ape : Forms!TextField(
+			format <- '^\\w+@[a-zA-Z_]+\\.[a-zA-Z]{2,3}$'
+		)
 		
-	do{
-		ape.attribute<-at;
-		thisModule.id<-thisModule.id.inc();
-		ape.elementID<-thisModule.id.toString();
+	do {
+		ape.attribute <- attr;
+		thisModule.id <- thisModule.id.inc();
+		ape.elementID <- thisModule.id.toString();
 	}
 }
 
