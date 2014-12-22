@@ -13,6 +13,15 @@ import at.ac.tuwien.big.forms.AttributeValueCondition
 import at.ac.tuwien.big.forms.Condition
 import at.ac.tuwien.big.forms.Page
 import at.ac.tuwien.big.forms.PageElement
+import at.ac.tuwien.big.forms.Form
+import at.ac.tuwien.big.forms.AttributePageElement
+import at.ac.tuwien.big.forms.Column
+import at.ac.tuwien.big.forms.DateSelectionField
+import at.ac.tuwien.big.forms.TimeSelectionField
+import at.ac.tuwien.big.forms.TextArea
+import at.ac.tuwien.big.forms.SelectionField
+import at.ac.tuwien.big.forms.AttributeType
+import at.ac.tuwien.big.forms.RelationshipPageElement
 
 class Form2HTMLGenerator implements IGenerator {
 
@@ -32,14 +41,99 @@ class Form2HTMLGenerator implements IGenerator {
 				<html lang="en">
 				«generateHead(formModel)»
 					<body>
-«««					add HTML elements here
+						«generateForms(formModel)»		
 					</body>
 				</html>'''	
 		)
 	}
 	
+	def generateForms(FormModel formModel){
+		'''«FOR form : formModel.forms»
+			<div class="form" id="«form.name»">
+			<form action="#" class="register">
+			<h1>«form.title»</h1>
+			<h2>«form.description»</h2>
+				«generatePage(form)»
+			</form>
+			</div>
+		«ENDFOR»'''							
+	}
 	
-			
+	def generatePage(Form form)
+	{
+		'''«FOR page : form.pages»
+			<div class="page" id="«page.title»">
+			<fieldset class="row1">
+			<h3>«page.title»</h3>
+				«generateElement(page)»
+			</fieldset>
+			</div>
+			«ENDFOR»'''
+	}
+	def generateElement(Page page)
+	{
+		'''«FOR element:page.pageElements»
+				«IF element instanceof AttributePageElement»
+					«generateAttributeElement(element as AttributePageElement)»
+				«ENDIF»
+				«IF element instanceof RelationshipPageElement»
+					«generateRelationshipElement(element as RelationshipPageElement)»
+				«ENDIF»
+			«ENDFOR»'''
+	}
+	def generateAttributeElement(AttributePageElement attrElement){
+		'''«IF !(attrElement instanceof Column)»
+			<p>
+			<label for="«attrElement.elementID»">«attrElement.label»«IF attrElement.attribute.mandatory»<span>*</span>«ENDIF»</label>
+				«generateField(attrElement)»
+			</p>
+			«ENDIF»
+			'''
+	}
+	def generateRelationshipElement(RelationshipPageElement relElement){
+		'''«IF relElement instanceof at.ac.tuwien.big.forms.List»
+			<div class="list" id="«relElement.elementID»">
+			<fieldset class="row1">
+			<legend class="legend">«relElement.label» List</legend>
+			<ul></ul>
+			</fieldset>
+			</div>
+		«ENDIF»
+		«IF relElement instanceof Table»
+		<div class="table" id="«relElement.elementID»">
+			<fieldset class="row1">
+			<legend class="legend">«relElement.label» Table</legend>
+			<table>
+				<tr id=«relElement.elementID»_header>
+				«FOR column: relElement.columns»	
+					<th>«column.label»</th>
+				«ENDFOR»
+				</tr>
+			</table>
+		</fieldset>
+		</div>
+		«ENDIF»'''
+	}
+	
+	def generateField(AttributePageElement attrElement)	{
+		switch attrElement{
+				TextField: '''<input type="text" id="«attrElement.elementID»" «IF attrElement.attribute.mandatory»class="mandatory"«ENDIF»/>'''
+				DateSelectionField: '''<input type="date" id="«attrElement.elementID»" «IF attrElement.attribute.mandatory»class="mandatory"«ENDIF»/>'''
+				TimeSelectionField: '''<input type="time" id="«attrElement.elementID»" «IF attrElement.attribute.mandatory»class="mandatory"«ENDIF»/>'''
+				TextArea: '''<textarea type="textarea" id="«attrElement.elementID»" «IF attrElement.attribute.mandatory»class="mandatory"«ENDIF»/>'''
+				SelectionField: '''<select id="«attrElement.elementID»" name="«attrElement.attribute.name»" «IF attrElement.attribute.mandatory»class="mandatory"«ENDIF»>
+					«IF attrElement.attribute.type == AttributeType.NONE»
+						«FOR literal : attrElement.attribute.enumeration.literals»						
+							<option value="«literal.value»">«literal.name»</option>
+						«ENDFOR»
+						</select>
+					«ELSE»
+						<option value="Yes">Yes</option>
+						<option value="No">No</option>
+					«ENDIF»
+					'''
+		}
+	}	
 	def generateHead(FormModel formModel) {
 		
 		
