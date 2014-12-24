@@ -50,11 +50,11 @@ class Form2HTMLGenerator implements IGenerator {
 	def generateForms(FormModel formModel){
 		'''«FOR form : formModel.forms»
 			<div class="form" id="«form.name»">
-			<form action="#" class="register">
-			<h1>«form.title»</h1>
-			<h2>«form.description»</h2>
-				«generatePage(form)»
-			</form>
+				<form action="#" class="register">
+					<h1>«form.title»</h1>
+					<h2>«form.description»</h2>
+					«generatePage(form)»
+				</form>
 			</div>
 		«ENDFOR»'''							
 	}
@@ -63,10 +63,10 @@ class Form2HTMLGenerator implements IGenerator {
 	{
 		'''«FOR page : form.pages»
 			<div class="page" id="«page.title»">
-			<fieldset class="row1">
-			<h3>«page.title»</h3>
-				«generateElement(page)»
-			</fieldset>
+				<fieldset class="row1">
+					<h3>«page.title»</h3>
+					«generateElement(page)»
+				</fieldset>
 			</div>
 			«ENDFOR»'''
 	}
@@ -84,7 +84,7 @@ class Form2HTMLGenerator implements IGenerator {
 	def generateAttributeElement(AttributePageElement attrElement){
 		'''«IF !(attrElement instanceof Column)»
 			<p>
-			<label for="«attrElement.elementID»">«attrElement.label»«IF attrElement.attribute.mandatory»<span>*</span>«ENDIF»</label>
+				<label for="«attrElement.elementID»">«attrElement.label»«IF attrElement.attribute.mandatory»<span>*</span>«ENDIF»</label>
 				«generateField(attrElement)»
 			</p>
 			«ENDIF»
@@ -93,24 +93,24 @@ class Form2HTMLGenerator implements IGenerator {
 	def generateRelationshipElement(RelationshipPageElement relElement){
 		'''«IF relElement instanceof at.ac.tuwien.big.forms.List»
 			<div class="list" id="«relElement.elementID»">
-			<fieldset class="row1">
-			<legend class="legend">«relElement.label» List</legend>
-			<ul></ul>
-			</fieldset>
+				<fieldset class="row1">
+					<legend class="legend">«relElement.label» List</legend>
+					<ul></ul>
+				</fieldset>
 			</div>
 		«ENDIF»
 		«IF relElement instanceof Table»
 		<div class="table" id="«relElement.elementID»">
 			<fieldset class="row1">
-			<legend class="legend">«relElement.label» Table</legend>
-			<table>
-				<tr id=«relElement.elementID»_header>
-				«FOR column: relElement.columns»	
-					<th>«column.label»</th>
-				«ENDFOR»
-				</tr>
-			</table>
-		</fieldset>
+				<legend class="legend">«relElement.label» Table</legend>
+				<table>
+					<tr id=«relElement.elementID»_header>
+					«FOR column: relElement.columns»	
+						<th>«column.label»</th>
+					«ENDFOR»
+					</tr>
+				</table>
+			</fieldset>
 		</div>
 		«ENDIF»'''
 	}
@@ -120,17 +120,18 @@ class Form2HTMLGenerator implements IGenerator {
 				TextField: '''<input type="text" id="«attrElement.elementID»" «IF attrElement.attribute.mandatory»class="mandatory"«ENDIF»/>'''
 				DateSelectionField: '''<input type="date" id="«attrElement.elementID»" «IF attrElement.attribute.mandatory»class="mandatory"«ENDIF»/>'''
 				TimeSelectionField: '''<input type="time" id="«attrElement.elementID»" «IF attrElement.attribute.mandatory»class="mandatory"«ENDIF»/>'''
-				TextArea: '''<textarea type="textarea" id="«attrElement.elementID»" «IF attrElement.attribute.mandatory»class="mandatory"«ENDIF»/>'''
+				TextArea: '''<textarea id="«attrElement.elementID»" «IF attrElement.attribute.mandatory»class="mandatory"«ENDIF»></textarea>'''
 				SelectionField: '''<select id="«attrElement.elementID»" name="«attrElement.attribute.name»" «IF attrElement.attribute.mandatory»class="mandatory"«ENDIF»>
+					<option value="default"> </option>
 					«IF attrElement.attribute.type == AttributeType.NONE»
-						«FOR literal : attrElement.attribute.enumeration.literals»						
-							<option value="«literal.value»">«literal.name»</option>
+						«FOR literal : attrElement.attribute.enumeration.literals»
+							<option value="«literal.name»">«literal.value»</option>
 						«ENDFOR»
-						</select>
 					«ELSE»
 						<option value="Yes">Yes</option>
 						<option value="No">No</option>
 					«ENDIF»
+					</select>
 					'''
 		}
 	}	
@@ -167,7 +168,9 @@ class Form2HTMLGenerator implements IGenerator {
 						«ENDIF»
 						«FOR element: page.pageElements»
 							«IF element instanceof TextField»
+								«IF element.format !=null && element.format!=''»
 								form.addRegularExpression('«element.elementID»', '«element.format»');
+								«ENDIF»
 							«ENDIF»
 							«IF element instanceof Table»
 								form.addRelationshipPageElement ('«page.title»', 
@@ -211,7 +214,7 @@ class Form2HTMLGenerator implements IGenerator {
 		«ENDIF»
 		«IF cond instanceof AttributeValueCondition»
 			form.addAttributeValueCondition('«cond.conditionID»', 
-			'«parentComposite.conditionID»', '«containerPage.title»', '«(cond as AttributeValueCondition).value»', 
+			«parentComposite.conditionID», '«containerPage.title»', '«(cond as AttributeValueCondition).value»', 
 			'«(cond as AttributeValueCondition).type»');
 		«ENDIF»'''
 	}
@@ -225,7 +228,7 @@ class Form2HTMLGenerator implements IGenerator {
 		«ENDIF»
 		«IF cond instanceof AttributeValueCondition»
 			form.addAttributeValueCondition('«cond.conditionID»', 
-			'«parentComposite.conditionID»', '«containerPageElement.elementID»', '«(cond as AttributeValueCondition).value»', 
+			«parentComposite.conditionID», '«containerPageElement.elementID»', '«(cond as AttributeValueCondition).value»', 
 			'«(cond as AttributeValueCondition).type»');
 		«ENDIF»'''
 	}
