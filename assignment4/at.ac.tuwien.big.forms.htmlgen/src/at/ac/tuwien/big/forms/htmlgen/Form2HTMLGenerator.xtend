@@ -128,8 +128,8 @@ class Form2HTMLGenerator implements IGenerator {
 							<option value="«literal.name»">«literal.value»</option>
 						«ENDFOR»
 					«ELSE»
-						<option value="Yes">Yes</option>
-						<option value="No">No</option>
+						<option value="true">Yes</option>
+						<option value="false">No</option>
 					«ENDIF»
 					</select>
 					'''
@@ -156,7 +156,7 @@ class Form2HTMLGenerator implements IGenerator {
 					«FOR page: form.pages»
 						«IF page.condition!=null»
 							«IF page.condition instanceof CompositeCondition»
-								form.addCompositeCondition('«page.condition.conditionID»', null, '«page.condition.type»');
+								form.addCompositeCondition('«page.condition.conditionID»', null, '«(page.condition as CompositeCondition).compositionType»');
 								«registerConditions((page.condition as CompositeCondition).composedConditions.get(0),page.condition as CompositeCondition,page)»
 								«registerConditions((page.condition as CompositeCondition).composedConditions.get(1),page.condition as CompositeCondition,page)»
 							«ENDIF»
@@ -173,27 +173,21 @@ class Form2HTMLGenerator implements IGenerator {
 								«ENDIF»
 							«ENDIF»
 							«IF element instanceof Table»
-								form.addRelationshipPageElement ('«page.title»', 
-								+'«element.elementID»', '«element.editingForm.title»', 
-								+'table', '«element.relationship.lowerBound»', 
-								+'«element.relationship.upperBound»');	
+								form.addRelationshipPageElement ('«page.title»', '«element.elementID»', '«element.editingForm.title»','table', '«element.relationship.lowerBound»','«element.relationship.upperBound»');	
 							«ENDIF»
 							«IF element instanceof at.ac.tuwien.big.forms.List»
-								form.addRelationshipPageElement ('«page.title»', 
-								+'«element.elementID»', '«element.editingForm.title»', 
-								+'list', '«element.relationship.lowerBound»', 
-								+'«element.relationship.upperBound»');	
+								form.addRelationshipPageElement ('«page.title»','«element.elementID»', '«element.editingForm.title»','list', '«element.relationship.lowerBound»','«element.relationship.upperBound»');	
 							«ENDIF»
-							«IF page.condition!=null»
-								«IF page.condition instanceof CompositeCondition»
-									form.addCompositeCondition('«page.condition.conditionID»', null, '«page.condition.type»');
-									«registerConditions((page.condition as CompositeCondition).composedConditions.get(0),page.condition as CompositeCondition,element)»
-									«registerConditions((page.condition as CompositeCondition).composedConditions.get(1),page.condition as CompositeCondition,element)»
+							«IF element.condition!=null»
+								«IF element.condition instanceof CompositeCondition»
+									form.addCompositeCondition('«element.condition.conditionID»', null, '«(element.condition as CompositeCondition).compositionType»');
+									«registerConditions((element.condition as CompositeCondition).composedConditions.get(0),element.condition as CompositeCondition,element)»
+									«registerConditions((element.condition as CompositeCondition).composedConditions.get(1),element.condition as CompositeCondition,element)»
 								«ENDIF»
-								«IF page.condition instanceof AttributeValueCondition»
-									form.addAttributeValueCondition('«page.condition.conditionID»', 
-									null, '«element.elementID»', '«(page.condition as AttributeValueCondition).value»', 
-									'«(page.condition as AttributeValueCondition).type»');
+								«IF element.condition instanceof AttributeValueCondition»
+									form.addAttributeValueCondition('«element.condition.conditionID»', 
+									null, '«element.elementID»', '«(element.condition as AttributeValueCondition).value»', 
+									'«(element.condition as AttributeValueCondition).type»');
 								«ENDIF»
 							«ENDIF»
 						«ENDFOR»
@@ -208,7 +202,7 @@ class Form2HTMLGenerator implements IGenerator {
 	def registerConditions(Condition cond,CompositeCondition parentComposite,Page containerPage){
 		'''
 		«IF cond instanceof CompositeCondition»
-			form.addCompositeCondition('«cond.conditionID»', '«parentComposite.conditionID»', '«cond.type»');
+			form.addCompositeCondition('«cond.conditionID»', '«parentComposite.conditionID»', '«(cond as CompositeCondition).compositionType»');
 			«registerConditions(cond.composedConditions.get(0),cond,containerPage)»
 			«registerConditions(cond.composedConditions.get(1),cond,containerPage)»
 		«ENDIF»
@@ -222,7 +216,7 @@ class Form2HTMLGenerator implements IGenerator {
 	def registerConditions(Condition cond,CompositeCondition parentComposite,PageElement containerPageElement){
 		'''
 		«IF cond instanceof CompositeCondition»
-			form.addCompositeCondition('«cond.conditionID»', '«parentComposite.conditionID»', '«cond.type»');
+			form.addCompositeCondition('«cond.conditionID»', '«parentComposite.conditionID»', '«(cond as CompositeCondition).compositionType»');
 			«registerConditions(cond.composedConditions.get(0),cond,containerPageElement)»
 			«registerConditions(cond.composedConditions.get(1),cond,containerPageElement)»
 		«ENDIF»
